@@ -44,19 +44,23 @@ class TelaProdutos:
             border_radius=15,
             content=Row(
                 controls=[
-                    Text("LISTA DE PRODUTOS", size=20, color="black", weight="bold"),
+                    Text("Nome", size=20, color="black",width=280, weight="bold"),
+                    Text("Preço", size=20, color="black",width=280, weight="bold"),
+                    Text("Quantidade", size=20, color="black",width=280, weight="bold"),
+                    Text("Observação", size=20, color="black",width=280, weight="bold"),
                 ],
             ),
             expand=True
         )
 
-        self.lista_produtos = Column(
-            spacing=25,
-            alignment="start",
-            scroll="adaptive",
+        self.lista_produtos = ListView(
+            spacing=10,
+            padding=10,
+            auto_scroll=True 
         )
+        self.atualizar_lista_produtos()
 
-        lista_produtos_container = Container(          #mudar a lista para ListView
+        lista_produtos_container = Container(       
             content=Column(
                 spacing=25,
                 alignment="start",
@@ -118,7 +122,10 @@ class TelaProdutos:
             produto_id, nome_produto, preco_produto, quantidade_produto, obs_produto = produto
             item = Row(
                 controls=[
-                    Text(f"{nome_produto}  |  R$ {preco_produto}  |  Estoque: {quantidade_produto}  |  OBS: {obs_produto}", size=20, color="white"),
+                    Text(f"{nome_produto}", size=20, color="white", width=280),
+                    Text(f"R${preco_produto}", size=20, color="white", width=280),
+                    Text(f"{quantidade_produto}", size=20, color="white", width=280),
+                    Text(f"{obs_produto}", size=20, color="white", width=250),
                     ElevatedButton(
                         "Excluir",
                         color="white",
@@ -141,6 +148,12 @@ class TelaProdutos:
         quantidade_produto= TextField(label="Quantidade do produto", hint_text="Digite a quantidade do produto", keyboard_type="number")#número
         obs_produto= TextField(label="Observação", hint_text="Digite uma observação para esse produto")#Texto
 
+        def validar(preco_produto, quantidade_produto):
+            try:
+                return float(preco_produto), float(quantidade_produto)
+            except ValueError:
+                return None
+
         overlay = Container( #popup - conteúdo e aparencia do popup
             bgcolor='white',
             border_radius=20,
@@ -158,9 +171,10 @@ class TelaProdutos:
                                 color="white",
                                 bgcolor="green",
                                 on_click=lambda e:(
-                                    self.salvar_produto(nome_produto.value, preco_produto.value, quantidade_produto.value, obs_produto.value), 
+                                    self.salvar_produto(nome_produto.value, preco_produto.value, quantidade_produto.value, obs_produto.value) 
+                                    if validar(preco_produto.value, quantidade_produto.value) else None,
 
-                                    e.page.overlay.remove(centered_overlay),
+                                    e.page.overlay.remove(centered_overlay) if validar(preco_produto.value, quantidade_produto.value) is not None else None,
                                     e.page.update()
                                 )
                             ),

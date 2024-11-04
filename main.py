@@ -44,14 +44,15 @@ class AppBarbearia:
                         on_click= self.tela_produtos
                     ),
                     ElevatedButton(
-                        text="Clientes",
+                        text="Barbeiros",
                         bgcolor="white",
                         color="black",
                         width=500,
                         height=50,
+                        on_click= self.tela_barbeiros
                     ),
                     ElevatedButton(
-                        text="Registrar Corte",
+                        text="Clientes e Agendamentos",
                         bgcolor="white",
                         color="black",
                         width=500,
@@ -85,6 +86,12 @@ class AppBarbearia:
         from produtos import TelaProdutos
         self.page.clean()
         TelaProdutos(self.page)
+
+
+    def tela_barbeiros(self,e):
+        from barbeiros import TelaBarbeiros
+        self.page.clean()
+        TelaBarbeiros(self.page)
 
 
 if __name__ == "__main__":  #definindo a class principal do meu projeto

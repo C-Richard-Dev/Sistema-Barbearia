@@ -48,17 +48,18 @@ class TelaServicos:
             border_radius=15,
             content=Row(
                 controls=[
-                    Text("SERVIÇOS", size=20, color="black", weight="bold"),
+                    Text("Nome", size=20, color="black", weight="bold", width=250),
+                    Text("Preço" , size=20, color="black", weight="bold", width=250),
                 ],
             ),
             expand=True
         )
 
         # Lista de serviços
-        self.lista_servicos = Column(
-            spacing=25,
-            alignment="start",
-            scroll="adaptive",
+        self.lista_servicos = ListView(
+            spacing=10,
+            padding=10,
+            auto_scroll=True
         )
 
         lista_servicos_container = Container(
@@ -70,6 +71,7 @@ class TelaServicos:
             ),
             height=400,  # Defina a altura máxima para ativar a rolagem
         )
+        self.atualizar_lista_servicos()
 
         #para adicionar os elementos da tela
         self.page.add(Column(
@@ -126,8 +128,8 @@ class TelaServicos:
             servico_id, nome_servico, preco_servico = servico
             item = Row(
                 controls=[
-                    Text(f"{nome_servico}", size=20, color="white"),
-                    Text(f"(R$ {preco_servico})", size=20, color="white", width=100),
+                    Text(f"{nome_servico}", size=20, color="white",width=280 ),
+                    Text(f"R${preco_servico}", size=20, color="white", width=280),
                     ElevatedButton(
                         "Excluir",
                         color="white",
@@ -136,7 +138,7 @@ class TelaServicos:
                     ),
                 ],
 
-                spacing=15
+                spacing=25
             )
             self.lista_servicos.controls.append(item)
             self.page.update()
