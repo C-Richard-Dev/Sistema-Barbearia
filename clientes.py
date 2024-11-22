@@ -2,8 +2,9 @@ import sqlite3
 from flet import *
 from main import AppBarbearia
 
-class TelaBarbeiros:
-    def __init__(self, page: Page):
+
+class TelaClientes():
+    def __init__(self, page:Page):
         self.page = page
         self.setup_interface()
 
@@ -18,23 +19,23 @@ class TelaBarbeiros:
             height=50,
             icon=icons.ARROW_BACK,
             on_click=lambda e: self.voltar()
-        )
-
+            )
+        
         titulo = Text(
-            "Barbeiros Cadastrados",
+            "Lista de Clientes",
             size=30,
             color="white",
             weight="bold"
         )
 
-        botao_cadastrar_barbeiro = ElevatedButton(
+        botao_cadastrar_cliente = ElevatedButton(
             text="Cadastrar",
             bgcolor="black",
             color="white",
             width=250,
             height=50,
             icon=icons.ADD,
-            on_click=self.tela_cadastrar_barbeiro
+            on_click=self.tela_cadastrar_cliente
         )
 
         cabecalho = Container(
@@ -45,31 +46,40 @@ class TelaBarbeiros:
                 controls=[
                     Text("Nome", size=20, color="black", width=280, weight="bold"),
                     Text("Contato", size=20, color="black", width=280, weight="bold"),
-                    Text("Cortes Realizados", size=20, color="black", width=280, weight="bold"),
-                ],
-            ),
-            expand=True
+                ]
+            )
+            
         )
-
-        self.lista_barbeiros = ListView(
+        self.lista_clientes = ListView(
             spacing=10,
             padding=10,
             auto_scroll=True
         )
-        self.atualizar_lista_barbeiros()
+        self.atualizar_lista_clientes()
 
-        lista_barbeiros_container = Container(
+        lista_clientes_container = Container(
             content=Column(
                 spacing=25,
                 alignment="start",
-                controls=[self.lista_barbeiros],
+                controls=[self.lista_clientes],
                 scroll="adaptive",
             ),
             bgcolor="white",
             border_radius=15,
             padding=10,
             height=400,  # Defina a altura máxima para ativar a rolagem
+            
         )
+
+        botao_agendamentos = ElevatedButton(
+            text="Ver Lista de Agendamentos",
+            bgcolor="orange",
+            color="white",
+            width=250,
+            height=50
+
+        )
+
 
         self.page.add(
             Column(
@@ -78,75 +88,87 @@ class TelaBarbeiros:
                         controls=[
                             botao_voltar,
                             titulo,
-                            botao_cadastrar_barbeiro
+                            botao_cadastrar_cliente,
                         ]
-                    ),
-                    cabecalho,
-                    lista_barbeiros_container,
-                ]
-            )
-        )
-        self.atualizar_lista_barbeiros()
-
-    def excluir_barbeiro(self, barbeiro_id):
+                        ),
+                        cabecalho,
+                        lista_clientes_container,
+    
+                    Row(
+                        controls=[
+                            botao_agendamentos,
+                        ],
+                        alignment="end"
+                    )
+                    ]
+                )
+            ),
+        self.atualizar_lista_clientes()
+        
+    def excluir_cliente(self, cliente_id):
         conexao = sqlite3.connect("meubanco.db")
         cursor = conexao.cursor()
-        cursor.execute("DELETE FROM Barbeiros WHERE rowid = ?", (barbeiro_id,))
+        cursor.execute("DELETE FROM Clientes WHERE rowid = ?", (cliente_id,))
         conexao.commit()
         conexao.close()
-        self.atualizar_lista_barbeiros()
 
-    def atualizar_lista_barbeiros(self):
+        self.atualizar_lista_clientes()
+
+        
+    def atualizar_lista_clientes(self):
         conexao = sqlite3.connect("meubanco.db")
         cursor = conexao.cursor()
-        cursor.execute("SELECT rowid, nome_barbeiro, contato_barbeiro FROM Barbeiros")
-        barbeiros = cursor.fetchall()
+        cursor.execute("SELECT rowid, nome_cliente, contato_cliente FROM Clientes")
+        clientes = cursor.fetchall()
         conexao.close()
 
-        self.lista_barbeiros.controls.clear()
+        self.lista_clientes.controls.clear()
 
-        for barbeiro in barbeiros:
-            barbeiro_id, nome_barbeiro, contato_barbeiro = barbeiro
+        for cliente in clientes:
+            cliente_id, nome_cliente, contato_cliente = cliente
             item = Row(
                 controls=[
-                    Text(f"{nome_barbeiro}", size=20, color="black", width=280),
-                    Text(f"{contato_barbeiro}", size=20, color="black", width=280),
+                    Text(f"{nome_cliente}", size=20, color="black", width=280),
+                    Text(f"{contato_cliente}",size=20, color="black", width=280),
                     ElevatedButton(
                         "Excluir",
                         bgcolor="red",
                         color="white",
-                        on_click=lambda e, barbeiro_id=barbeiro_id: self.excluir_barbeiro(barbeiro_id)
+                        on_click= lambda e, cliente_id=cliente_id: self.excluir_cliente(cliente_id)
                     ),
                 ],
                 spacing=25
             )
-            self.lista_barbeiros.controls.append(item)
+            self.lista_clientes.controls.append(item)
         self.page.update()
 
-    def salvar_barbeiro(self, nome_barbeiro, contato_barbeiro):
+
+        
+    def salvar_cliente(self, nome_cliente, contato_cliente):
         conexao = sqlite3.connect("meubanco.db")
         cursor = conexao.cursor()
-        cursor.execute("INSERT INTO Barbeiros (nome_barbeiro, contato_barbeiro) VALUES (?, ?)", (nome_barbeiro, contato_barbeiro))
+        cursor.execute("INSERT INTO Clientes (nome_cliente, contato_cliente) VALUES (?,?)",(nome_cliente, contato_cliente))
         conexao.commit()
         conexao.close()
 
-        self.atualizar_lista_barbeiros()
+        self.atualizar_lista_clientes()
 
-        print(f"O barbeiro {nome_barbeiro} foi salvo no BD com o contato: {contato_barbeiro}")
-
-    def tela_cadastrar_barbeiro(self, e):
-        nome_barbeiro = TextField(label="Nome", hint_text="Escreva o nome do barbeiro")
-        contato_barbeiro = TextField(label="Contato", hint_text="Escreva o número do barbeiro")
-
+        print(f"O cliente {nome_cliente} foi cadastrado com sucesso no BD!")
+    
+        
+    def tela_cadastrar_cliente(self,e):
+        nome_cliente = TextField(label="Nome",label_style=TextStyle(color="white"), hint_text="Escreva o nome do cliente",border_color="white", color="white", bgcolor="black")
+        contato_cliente = TextField(label="Contato",label_style=TextStyle(color="white"), hint_text="Número",border_color="white", color="white", bgcolor="black")
+        
         overlay = Container(
-            bgcolor='white',
+            bgcolor="black",
             border_radius=20,
-            border=border.all(2,"black"),
+            border=border.all(2,"white"),
             content=Column(
                 controls=[
-                    Text("Cadastrar Barbeiro", size=25, color="black"),
-                    nome_barbeiro,
-                    contato_barbeiro,
+                    Text("Cadastrar Cliente", size=25, color="white"),
+                    nome_cliente,
+                    contato_cliente,
 
                     Row(
                         controls=[
@@ -154,8 +176,8 @@ class TelaBarbeiros:
                                 "Cadastrar",
                                 color="white",
                                 bgcolor="green",
-                                on_click=lambda e: (
-                                    self.salvar_barbeiro(nome_barbeiro.value, contato_barbeiro.value),
+                                on_click= lambda e :(
+                                    self.salvar_cliente(nome_cliente.value , contato_cliente.value),
                                     e.page.overlay.remove(centered_overlay),
                                     e.page.update()
                                 )
@@ -164,21 +186,21 @@ class TelaBarbeiros:
                                 "Cancelar",
                                 color="white",
                                 bgcolor="red",
-                                on_click=lambda e: (
+                                on_click= lambda e: (
                                     e.page.overlay.remove(centered_overlay),
                                     e.page.update()
                                 )
                             )
                         ],
-                        alignment="end"
+                        alignment= "end",
                     )
-                ]
+                ],
+    
             ),
             width=400,
             height=350,
             padding=20,
         )
-
         centered_overlay = Container(
             expand=True,
             alignment=alignment.center,

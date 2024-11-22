@@ -1,14 +1,16 @@
-import sqlite3
 from flet import *
+import sqlite3
 from main import AppBarbearia
+
 
 class TelaBarbeiros:
     def __init__(self, page: Page):
         self.page = page
         self.setup_interface()
 
+
     def setup_interface(self):
-        self.page.clean()
+        self.page.clean
 
         botao_voltar = ElevatedButton(
             text=" ",
@@ -34,7 +36,7 @@ class TelaBarbeiros:
             width=250,
             height=50,
             icon=icons.ADD,
-            on_click=self.tela_cadastrar_barbeiro
+            on_click= self.tela_cadastrar_barbeiro
         )
 
         cabecalho = Container(
@@ -43,9 +45,9 @@ class TelaBarbeiros:
             border_radius=15,
             content=Row(
                 controls=[
-                    Text("Nome", size=20, color="black", width=280, weight="bold"),
-                    Text("Contato", size=20, color="black", width=280, weight="bold"),
-                    Text("Cortes Realizados", size=20, color="black", width=280, weight="bold"),
+                    Text("Nome", size=20, color="black",width=280, weight="bold"),
+                    Text("Contato", size=20, color="black",width=280, weight="bold"),
+                    Text("Cortes Realizados", size=20, color="black",width=280, weight="bold"),
                 ],
             ),
             expand=True
@@ -54,22 +56,20 @@ class TelaBarbeiros:
         self.lista_barbeiros = ListView(
             spacing=10,
             padding=10,
-            auto_scroll=True
+            auto_scroll=True 
         )
         self.atualizar_lista_barbeiros()
 
-        lista_barbeiros_container = Container(
+        lista_barbeiros_container = Container(       
             content=Column(
                 spacing=25,
                 alignment="start",
                 controls=[self.lista_barbeiros],
                 scroll="adaptive",
             ),
-            bgcolor="white",
-            border_radius=15,
-            padding=10,
             height=400,  # Defina a altura máxima para ativar a rolagem
         )
+
 
         self.page.add(
             Column(
@@ -79,7 +79,8 @@ class TelaBarbeiros:
                             botao_voltar,
                             titulo,
                             botao_cadastrar_barbeiro
-                        ]
+
+                            ]
                     ),
                     cabecalho,
                     lista_barbeiros_container,
@@ -91,10 +92,10 @@ class TelaBarbeiros:
     def excluir_barbeiro(self, barbeiro_id):
         conexao = sqlite3.connect("meubanco.db")
         cursor = conexao.cursor()
-        cursor.execute("DELETE FROM Barbeiros WHERE rowid = ?", (barbeiro_id,))
+        cursor.execute("DELETE FROM Barbeiros WHERE rowid = ?", (barbeiro_id))
         conexao.commit()
         conexao.close()
-        self.atualizar_lista_barbeiros()
+        self.atualizar_lista_barbeiros
 
     def atualizar_lista_barbeiros(self):
         conexao = sqlite3.connect("meubanco.db")
@@ -106,42 +107,45 @@ class TelaBarbeiros:
         self.lista_barbeiros.controls.clear()
 
         for barbeiro in barbeiros:
-            barbeiro_id, nome_barbeiro, contato_barbeiro = barbeiro
+            barbeiro_id, nome_barbeiro , contato_barbeiro = barbeiro
             item = Row(
                 controls=[
-                    Text(f"{nome_barbeiro}", size=20, color="black", width=280),
-                    Text(f"{contato_barbeiro}", size=20, color="black", width=280),
+                    Text(f"{nome_barbeiro}", size=20, color="white", width=280),
+                    Text(f"{contato_barbeiro}",  size=20, color="white", width=280),
                     ElevatedButton(
                         "Excluir",
-                        bgcolor="red",
+                        bgcolor= "red",
                         color="white",
-                        on_click=lambda e, barbeiro_id=barbeiro_id: self.excluir_barbeiro(barbeiro_id)
+                        on_click= lambda e, barbeiro_id = barbeiro_id: self.excluir_barbeiro(barbeiro_id)
                     ),
                 ],
                 spacing=25
             )
             self.lista_barbeiros.controls.append(item)
-        self.page.update()
+            self.page.update()
 
-    def salvar_barbeiro(self, nome_barbeiro, contato_barbeiro):
+
+
+    def salvar_barbeiro(self, nome_barbeiro,contato_barbeiro):
         conexao = sqlite3.connect("meubanco.db")
         cursor = conexao.cursor()
-        cursor.execute("INSERT INTO Barbeiros (nome_barbeiro, contato_barbeiro) VALUES (?, ?)", (nome_barbeiro, contato_barbeiro))
-        conexao.commit()
-        conexao.close()
+        cursor.execute("INSERT INTO Barbeiros (nome_barbeiro, contato_barbeiro) VALUES (?,?)",(nome_barbeiro,contato_barbeiro))
+        conexao.commit
+        conexao.close
 
         self.atualizar_lista_barbeiros()
 
-        print(f"O barbeiro {nome_barbeiro} foi salvo no BD com o contato: {contato_barbeiro}")
+        print(f"O barbeiro {nome_barbeiro} foi salvo no BD com o contato: {contato_barbeiro} ")
+        
 
-    def tela_cadastrar_barbeiro(self, e):
+
+    def tela_cadastrar_barbeiro(self,e):
         nome_barbeiro = TextField(label="Nome", hint_text="Escreva o nome do barbeiro")
         contato_barbeiro = TextField(label="Contato", hint_text="Escreva o número do barbeiro")
 
         overlay = Container(
             bgcolor='white',
             border_radius=20,
-            border=border.all(2,"black"),
             content=Column(
                 controls=[
                     Text("Cadastrar Barbeiro", size=25, color="black"),
@@ -155,10 +159,12 @@ class TelaBarbeiros:
                                 color="white",
                                 bgcolor="green",
                                 on_click=lambda e: (
-                                    self.salvar_barbeiro(nome_barbeiro.value, contato_barbeiro.value),
+                                    self.salvar_barbeiro(nome_barbeiro.value, contato_barbeiro.value, ),
+
                                     e.page.overlay.remove(centered_overlay),
-                                    e.page.update()
-                                )
+                                    e.page.update())
+
+
                             ),
                             ElevatedButton(
                                 "Cancelar",
@@ -166,12 +172,12 @@ class TelaBarbeiros:
                                 bgcolor="red",
                                 on_click=lambda e: (
                                     e.page.overlay.remove(centered_overlay),
-                                    e.page.update()
-                                )
+                                    e.page.update())
                             )
                         ],
                         alignment="end"
                     )
+                    
                 ]
             ),
             width=400,

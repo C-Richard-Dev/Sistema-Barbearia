@@ -67,6 +67,9 @@ class TelaProdutos:
                 controls=[self.lista_produtos],
                 scroll="adaptive",
             ),
+            bgcolor="white",
+            border_radius=15,
+            padding=10,
             height=400,  # Defina a altura máxima para ativar a rolagem
         )
 
@@ -122,10 +125,10 @@ class TelaProdutos:
             produto_id, nome_produto, preco_produto, quantidade_produto, obs_produto = produto
             item = Row(
                 controls=[
-                    Text(f"{nome_produto}", size=20, color="white", width=280),
-                    Text(f"R${preco_produto}", size=20, color="white", width=280),
-                    Text(f"{quantidade_produto}", size=20, color="white", width=280),
-                    Text(f"{obs_produto}", size=20, color="white", width=250),
+                    Text(f"{nome_produto}", size=20, color="black", width=280),
+                    Text(f"R${preco_produto}", size=20, color="black", width=280),
+                    Text(f"{quantidade_produto}", size=20, color="black", width=280),
+                    Text(f"{obs_produto}", size=20, color="black", width=250),
                     ElevatedButton(
                         "Excluir",
                         color="white",
@@ -157,6 +160,7 @@ class TelaProdutos:
         overlay = Container( #popup - conteúdo e aparencia do popup
             bgcolor='white',
             border_radius=20,
+            border=border.all(2,"black"),
             content=Column(
                 controls=[
                     Text("Adicionar Produto", size=25, color="black"),

@@ -57,6 +57,7 @@ class AppBarbearia:
                         color="black",
                         width=500,
                         height=50,
+                        on_click= self.tela_clientes_agendamentos
                     ),
                     ElevatedButton(
                         text="Registrar Venda",
@@ -92,6 +93,12 @@ class AppBarbearia:
         from barbeiros import TelaBarbeiros
         self.page.clean()
         TelaBarbeiros(self.page)
+
+
+    def tela_clientes_agendamentos(self,e):
+        from clientes import TelaClientes
+        self.page.clean()
+        TelaClientes(self.page)
 
 
 if __name__ == "__main__":  #definindo a class principal do meu projeto
