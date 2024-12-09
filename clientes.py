@@ -71,15 +71,6 @@ class TelaClientes():
             
         )
 
-        botao_agendamentos = ElevatedButton(
-            text="Ver Lista de Agendamentos",
-            bgcolor="orange",
-            color="white",
-            width=250,
-            height=50
-
-        )
-
 
         self.page.add(
             Column(
@@ -93,13 +84,6 @@ class TelaClientes():
                         ),
                         cabecalho,
                         lista_clientes_container,
-    
-                    Row(
-                        controls=[
-                            botao_agendamentos,
-                        ],
-                        alignment="end"
-                    )
                     ]
                 )
             ),
