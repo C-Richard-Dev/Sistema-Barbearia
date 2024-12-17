@@ -73,6 +73,7 @@ class AppBarbearia:
                         color="black",
                         width=500,
                         height=50,
+                        on_click= self.tela_venda
                     )
                 ],
                 alignment="start",
@@ -112,6 +113,12 @@ class AppBarbearia:
         from agendamentos import TelaAgendamentos
         self.page.clean()
         TelaAgendamentos(self.page)
+
+    def tela_venda(self,e):
+        from venda import TelaVendas
+        self.page.clean()
+        TelaVendas(self.page)
+
 
 
 if __name__ == "__main__":  #definindo a class principal do meu projeto
