@@ -1,0 +1,71 @@
+cabecalho_produtos = Container(
+            bgcolor="white",
+            padding=10,
+            border_radius=15,
+            content=Row(
+                controls=[
+                    Text("Produtos", size=20, color="black", width=280, weight="bold"),
+                ]
+            )
+        )
+        self.lista_produtos = ListView(
+            spacing=10,
+            padding=10,
+            auto_scroll=True,
+        )
+        self.lista_produtos_container = Container(
+            bgcolor="white",
+            border_radius=15,
+            padding=10,
+            height=220,  
+            
+            content=Column(
+                spacing=25,
+                alignment="start",
+                controls=[self.lista_produtos],
+                scroll="adaptive",
+            ),
+            
+            
+        )
+
+
+ def atualizar_lista_produtos(self): #Função para manter atualizado a lista de produtos
+        conexao = sqlite3.connect("meubanco.db")
+        cursor = conexao.cursor()
+        cursor.execute("SELECT rowid, produto, preco_produto FROM Produtos")
+        produtos = cursor.fetchall()
+        conexao.close()
+
+        self.lista_produtos.controls.clear()
+
+        for produto in produtos:
+            produto_id, nome_produto, preco_produto = produto
+            item = Row(
+                controls=[
+                    Text(f"{nome_produto}", size=20, color="black",width=280 ),
+                    Text(f"R${preco_produto}", size=20, color="black", width=280),
+                    TextField(
+                        label="Quantidade",
+                        label_style=TextStyle(color="black"), 
+                        hint_text="Quantidade", 
+                        border_color="white", 
+                        color="black",
+                        bgcolor="grey",
+                        width=150
+
+                    ),
+                    ElevatedButton(
+                        "Adicionar",
+                        color="white",
+                        bgcolor="green",
+                       #implementar a função on_click
+                    ),
+                ],
+
+                spacing=15
+            )
+            self.lista_produtos.controls.append(item)
+            self.page.update()
+
+

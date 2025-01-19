@@ -1,0 +1,215 @@
+TextField(
+                        label="Quantidade",
+                        label_style=TextStyle(color="black"), 
+                        hint_text="Quantidade", 
+                        border_color="white", 
+                        color="black",
+                        bgcolor="grey",
+                        width=150
+
+                    ),
+
+
+
+
+
+from flet import *
+
+class ListaProdutos:
+    def __init__(self, page: Page):
+        self.page = page
+        self.produtos = []  
+        self.setup_interface()
+
+    def setup_interface(self):
+        self.page.clean()
+
+        botao_adicionar_produto = ElevatedButton(
+            text="Adicionar Produto",
+            bgcolor="green",
+            color="white",
+            width=250,
+            height=50,
+            icon=icons.ADD,
+            on_click=self.tela_adicionar_produto
+        )
+
+        titulo_produtos = Text(
+            "Lista de Produtos",
+            size=30,
+            color="white",
+            weight="bold",
+        )
+
+        cabecalho = Container(
+            bgcolor="white",
+            padding=10,
+            border_radius=15,
+            content=Row(
+                controls=[
+                    Text("Nome", size=20, color="black", width=280, weight="bold"),
+                    Text("Preço", size=20, color="black", width=280, weight="bold"),
+                    Text("Descrição", size=20, color="black", width=280, weight="bold"),
+                    Text("Disponível para venda?", size=20, color="black", width=280, weight="bold"),
+                ],
+            ),
+            expand=True
+        )
+
+        self.lista_produtos = ListView(
+            spacing=10,
+            padding=10,
+            auto_scroll=True
+        )
+        self.atualizar_lista_produtos()
+
+        lista_produtos_container = Container(
+            content=Column(
+                spacing=25,
+                alignment="start",
+                controls=[self.lista_produtos],
+                scroll="adaptive",
+            ),
+            bgcolor="white",
+            border_radius=15,
+            padding=10,
+            height=400,
+        )
+
+        self.page.add(
+            Column(
+                controls=[
+                    Row(
+                        controls=[
+
+                            titulo_produtos,
+                            botao_adicionar_produto
+                        ],
+                    ),
+                    cabecalho,
+                    lista_produtos_container
+                ],
+            ),
+        )
+        self.atualizar_lista_produtos()
+
+    def salvar_produto(self, nome_produto, preco_produto, obs_produto, disponivel_para_venda):
+        self.produtos.append({
+            "nome": nome_produto,
+            "preco": preco_produto,
+            "observacao": obs_produto,
+            "disponivel_para_venda": "Sim" if disponivel_para_venda == "sim" else "Não"
+        })
+        self.atualizar_lista_produtos()
+        print(f"O produto {nome_produto} foi salvo na memória!")
+
+    def atualizar_lista_produtos(self):
+        self.lista_produtos.controls.clear()
+        self.produtos.sort(key=lambda produto: float(produto["preco"])) #essa é a logica que faz com qe os produtos se organizem do menor ao maior preço
+
+        for index, produto in enumerate(self.produtos):
+            item = Row(
+                controls=[
+                    Text(f"{produto['nome']}", size=20, color="black", width=280),
+                    Text(f"R${produto['preco']}", size=20, color="black", width=280),
+                    Text(f"{produto['observacao']}", size=20, color="black", width=250),
+                    Text(f"{produto['disponivel_para_venda']}", size=20, color="black", width=250),
+                ],
+                spacing=25
+            )
+            self.lista_produtos.controls.append(item)
+        self.page.update()
+
+    def tela_adicionar_produto(self, e):
+
+        nome_produto = TextField(label="Nome do produto", hint_text="Digite o nome do produto")
+        preco_produto = TextField(label="Preço do produto", hint_text="Digite o preço do produto", keyboard_type="number")
+        obs_produto = TextField(label="Observação", hint_text="Digite uma observação para esse produto")
+        disponivel_para_venda = Dropdown(
+                        label="Disponível para venda?",
+                        label_style=TextStyle(color="black"),
+                        options=[
+                            dropdown.Option(key="sim",text="Sim"),
+                            dropdown.Option(key="nao",text="Não")
+                            
+                        ],
+                        border_color="black",
+                        color="black",
+                        bgcolor="white",
+                        width=300,
+                    )
+
+        def validar(preco_produto): # implementei uma função para verificar se o campo de preço foi preenchido com numero ou nao
+            try:
+                return float(preco_produto),
+            except ValueError:
+                return None
+
+        overlay = Container(
+            bgcolor='white',
+            border_radius=20,
+            border=border.all(2, "black"),
+            content=Column(
+                controls=[
+                    Text("Adicionar Produto", size=25, color="black"),
+                    nome_produto,
+                    preco_produto,
+                    obs_produto,
+                    disponivel_para_venda,
+                    Row(
+                        controls=[
+                            ElevatedButton(
+                                "Adicionar",
+                                color="white",
+                                bgcolor="green",
+                                on_click=lambda e: (
+                                    self.salvar_produto(nome_produto.value, preco_produto.value, obs_produto.value, disponivel_para_venda.value)
+                                    if validar(preco_produto.value) else None,
+
+                                    e.page.overlay.remove(centered_overlay) if validar(preco_produto.value) is not None else None,
+                                    e.page.update()
+                                )
+                            ),
+                            ElevatedButton(
+                                "Cancelar",
+                                color="white",
+                                bgcolor="red",
+                                on_click=lambda e: (
+                                    e.page.overlay.remove(centered_overlay),
+                                    e.page.update()
+                                )
+                            ),
+                        ],
+                        alignment="end",
+                    ),
+                ],
+                spacing=10,
+                alignment="start",
+                horizontal_alignment="center"
+            ),
+            width=400,
+            height=500,
+            padding=20,
+        )
+
+        centered_overlay = Container(
+            expand=True,
+            alignment=alignment.center,
+            content=overlay,
+        )
+
+        e.page.overlay.append(centered_overlay)
+        e.page.update()
+
+    
+
+
+
+def main(page: Page):
+    page.title = "Sistema de Lista de Produtos"
+    page.bgcolor = "blue" #cor de fundo da tela
+    page.scroll = "adaptive" # rolagem automatica caso precise!!
+    ListaProdutos(page)
+
+
+app(target=main)
