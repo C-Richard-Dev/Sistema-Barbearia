@@ -358,7 +358,11 @@ class TelaVendas():
             )
             self.carrinho.clear()
             self.atualizar_carrinho()
+            self.total = 0.00
+            self.total_label.value = f"R$ {self.total:.2f}"
 
+
+            
             self.page.dialog = alert_dialog
             alert_dialog.open = True
             self.page.update()
