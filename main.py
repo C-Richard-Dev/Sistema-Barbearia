@@ -76,6 +76,14 @@ class AppBarbearia:
                         on_click= self.tela_venda
                     ),
                     ElevatedButton(
+                        text="Registrar Venda de Produto",
+                        bgcolor="white",
+                        color="black",
+                        width=500,
+                        height=50,
+                        on_click= self.tela_vendaproduto
+                    ),
+                    ElevatedButton(
                         text="Ver Histórico de Vendas",
                         bgcolor="white",
                         color="black",
@@ -126,6 +134,11 @@ class AppBarbearia:
         from venda import TelaVendas
         self.page.clean()
         TelaVendas(self.page)
+
+    def tela_vendaproduto(self,e):
+        from vendaservico import TelaVendaServico
+        self.page.clean()
+        TelaVendaServico(self.page)
 
     def ver_historico(self,e):
         from historico_vendas import TelaHistoricoVendas

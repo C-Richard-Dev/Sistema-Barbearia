@@ -61,6 +61,16 @@ class TelaHistoricoVendas():
             on_click=lambda e: self.historico_mensal()
         )
 
+        botao_ver_produtos_diarios = ElevatedButton(
+            text=" Ver Produtos Diários" , 
+            bgcolor= "white",
+            color = "black",
+            width= 300,
+            height= 50,
+
+            on_click= lambda e: self.ver_produtos_diarios()
+        )
+
         self.page.add(
             Column(
                 controls=[
@@ -73,7 +83,7 @@ class TelaHistoricoVendas():
                     lista_historico_container ,
                     Row(
                         controls=[
-                            botao_ver_barbeiros, botao_ver_historico_mensal
+                            botao_ver_barbeiros, botao_ver_historico_mensal, botao_ver_produtos_diarios
                         ]
                     )
                 ],
@@ -125,6 +135,10 @@ class TelaHistoricoVendas():
     def historico_mensal(self):
         self.page.clean()
         ListaDadosMensais(self.page)
+
+    def ver_produtos_diarios(self):
+        self.page.clean()
+        ListaDadosProdutosDiarios(self.page)
 
     def voltar(self):
         self.page.clean()
@@ -193,6 +207,16 @@ class ListaDadosBarbeiros():
             on_click=lambda e: self.historico_mensal()
         )
 
+        botao_ver_produtos_diarios = ElevatedButton(
+            text=" Ver Produtos Diários" , 
+            bgcolor= "white",
+            color = "black",
+            width= 300,
+            height= 50,
+
+            on_click= lambda e: self.ver_produtos_diarios()
+        )
+
 
         self.page.add(
             Column(
@@ -206,7 +230,7 @@ class ListaDadosBarbeiros():
                     lista_dados_barbeiro_container ,
                     Row(
                         controls=[
-                            botao_ver_historico_diario, botao_ver_historico_mensal
+                            botao_ver_historico_diario, botao_ver_historico_mensal, botao_ver_produtos_diarios
                         ]
                     )
                 ],
@@ -278,12 +302,13 @@ class ListaDadosBarbeiros():
         self.page.clean()
         ListaDadosMensais(self.page)
 
+    def ver_produtos_diarios(self):
+        self.page.clean()
+        ListaDadosProdutosDiarios(self.page)
+
     def voltar(self):
         self.page.clean()
         AppBarbearia(self.page)
-
-
-
 
 
 class ListaDadosMensais():
@@ -343,6 +368,16 @@ class ListaDadosMensais():
             on_click=lambda e: self.ver_barbeiros()
         )
 
+        botao_ver_produtos_diarios = ElevatedButton(
+            text=" Ver Produtos Diários" , 
+            bgcolor= "white",
+            color = "black",
+            width= 300,
+            height= 50,
+
+            on_click= lambda e: self.ver_produtos_diarios()
+        )
+
 
         self.page.add(
             Column(
@@ -356,7 +391,7 @@ class ListaDadosMensais():
                     lista_mensal_container ,
                     Row(
                         controls=[
-                            botao_ver_historico_diario, botao_ver_barbeiros,
+                            botao_ver_historico_diario, botao_ver_barbeiros, botao_ver_produtos_diarios
                         ]
                     )
                 ],
@@ -403,6 +438,128 @@ class ListaDadosMensais():
         self.page.clean()
         ListaDadosBarbeiros(self.page)
 
+    def ver_produtos_diarios(self):
+        self.page.clean()
+        ListaDadosProdutosDiarios(self.page)
+
     def voltar(self):
         self.page.clean()
         AppBarbearia(self.page)
+
+
+class ListaDadosProdutosDiarios():
+    def __init__(self, page: Page):
+        self.page = page
+        self.setup_interface()
+
+    def setup_interface(self):
+        self.page.clean()
+
+        botao_voltar = ElevatedButton(
+            text=" ",
+            bgcolor="black",
+            color="white",
+            width=100,
+            height=50,
+            icon=icons.ARROW_BACK,
+            on_click=lambda e: self.voltar()
+        )
+
+        self.lista_historico = ListView(
+            spacing=10,
+            padding=10,
+            auto_scroll=True
+        )
+        self.atualizar_lista_historico()
+
+        lista_historico_container = Container(
+            content=Column(
+                spacing=25,
+                alignment="start",
+                controls=[self.lista_historico],
+                scroll="adaptive",
+            ),
+            bgcolor="white",
+            border_radius=15,
+            padding=10,
+            height=400,
+        )
+
+        botao_ver_barbeiros = ElevatedButton(
+            text=" Ver Barbeiros ",
+            bgcolor="white",
+            color="black",
+            width=300,
+            height=50,
+            on_click=lambda e: self.ver_barbeiros()
+        )
+
+        botao_ver_historico_mensal = ElevatedButton(
+            text="Ver Histórico Mensal",
+            bgcolor="white",
+            color="black",
+            width=300,
+            height=50,
+            on_click=lambda e: self.historico_mensal()
+        )
+
+        self.page.add(
+            Column(
+                controls=[
+                    Row(
+                        controls=[botao_voltar],
+                    ),
+                    lista_historico_container,
+                    Row(
+                        controls=[botao_ver_barbeiros, botao_ver_historico_mensal]
+                    )
+                ],
+            ),
+        )
+        self.atualizar_lista_historico()
+
+    def buscar_historico(self):
+        conexao = sqlite3.connect("meubanco.db")
+        cursor = conexao.cursor()
+        cursor.execute('''
+            SELECT DATE(data_produto) as dia, SUM(total_produto) as total_diario, COUNT(*) as quantidade_vendas
+            FROM Registro_Produtos
+            GROUP BY DATE(data_produto)
+            ORDER BY DATE(data_produto) DESC
+        ''')
+        historico = cursor.fetchall()
+        conexao.close()
+        return historico
+
+    def atualizar_lista_historico(self):
+        historico = self.buscar_historico()
+        self.lista_historico.controls.clear()
+
+        for dia, total_diario, quantidade_vendas in historico:
+            item = Container(
+                content=Row(
+                    controls=[
+                        Text(f"Dia: {dia}", size=20, color="black", width=280, weight="bold"),
+                        Text(f"Receita: R$ {total_diario:.2f}", size=20, color="green", width=280, weight="bold"),
+                        Text(f"Vendas: {quantidade_vendas}", size=20, color="blue", width=200, weight="bold")
+                    ]
+                ),
+                padding=5,
+                border_radius=5,
+            )
+            self.lista_historico.controls.append(item)
+        
+        self.page.update()
+
+    def ver_barbeiros(self):
+        self.page.clean()
+        ListaDadosBarbeiros(self.page)
+
+    def historico_mensal(self):
+        self.page.clean()
+        ListaDadosMensais(self.page)
+
+    def voltar(self):
+        self.page.clean()
+        AppBarbearia(self.page)
+        
