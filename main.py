@@ -90,6 +90,14 @@ class AppBarbearia:
                         width=500,
                         height=50,
                         on_click= self.ver_historico
+                    ),
+                    ElevatedButton(
+                        text="Ver Histórico de Vendas de Produtos",
+                        bgcolor="white",
+                        color="black",
+                        width=500,
+                        height=50,
+                        on_click= self.ver_historico2
                     )
                 ],
                 alignment="start",
@@ -141,6 +149,11 @@ class AppBarbearia:
         TelaVendaServico(self.page)
 
     def ver_historico(self,e):
+        from historico_vendas import TelaHistoricoVendas
+        self.page.clean()
+        TelaHistoricoVendas(self.page)
+
+    def ver_historico2(self,e):
         from historico_vendas import TelaHistoricoVendas
         self.page.clean()
         TelaHistoricoVendas(self.page)
