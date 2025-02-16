@@ -69,6 +69,9 @@ class TelaServicos:
                 controls=[self.lista_servicos],
                 scroll="adaptive",
             ),
+            bgcolor="white",
+            border_radius=15,
+            padding=10,
             height=400,  # Defina a altura máxima para ativar a rolagem
         )
         self.atualizar_lista_servicos()
@@ -128,8 +131,8 @@ class TelaServicos:
             servico_id, nome_servico, preco_servico = servico
             item = Row(
                 controls=[
-                    Text(f"{nome_servico}", size=20, color="white",width=280 ),
-                    Text(f"R${preco_servico}", size=20, color="white", width=280),
+                    Text(f"{nome_servico}", size=20, color="black",width=280 ),
+                    Text(f"R${preco_servico}", size=20, color="black", width=280),
                     ElevatedButton(
                         "Excluir",
                         color="white",

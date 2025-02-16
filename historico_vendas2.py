@@ -219,7 +219,7 @@ class ListaDadosBarbeiros():
                     lista_dados_barbeiro_container ,
                     Row(
                         controls=[
-                            botao_ver_historico_diario, botao_ver_historico_mensal, botao_ver_produtos_diarios, botao_ver_lista_geral
+                            botao_ver_historico_diario, botao_ver_historico_mensal, botao_ver_lista_geral
                         ]
                     )
                 ],
@@ -231,10 +231,10 @@ class ListaDadosBarbeiros():
         conexao = sqlite3.connect("meubanco.db")
         cursor = conexao.cursor()
         cursor.execute('''
-            SELECT DATE(data) as dia, barbeiro, COUNT(*) as quantidade_produtos, SUM(total) as valor_total
+            SELECT DATE(data_produto) as dia, barbeiro_produto, COUNT(*) as quantidade_produto, SUM(total_produto) as valor_total
             FROM Registro_Produtos
-            GROUP BY DATE(data), barbeiro
-            ORDER BY DATE(data) DESC, barbeiro ASC
+            GROUP BY DATE(data_produto), barbeiro_produto
+            ORDER BY DATE(data_produto) DESC, barbeiro_produto ASC
         ''')
         historico = cursor.fetchall()
         conexao.close()
@@ -452,6 +452,33 @@ class ListaProdutos():
             on_click=lambda e: self.open_popup()
         )
 
+        botao_ver_barbeiros = ElevatedButton(
+            text="Ver Barbeiros",
+            bgcolor="white",
+            color="black",
+            width=300,
+            height=50,
+            on_click=lambda e: self.ver_barbeiros()
+        )
+
+        botao_ver_historico_diario = ElevatedButton(
+            text="Ver Histórico Diário",
+            bgcolor="white",
+            color="black",
+            width=300,
+            height=50,
+            on_click=lambda e: self.historico_diario()
+        )
+
+        botao_ver_historico_mensal = ElevatedButton(
+            text="Ver Histórico Mensal",
+            bgcolor="white",
+            color="black",
+            width=300,
+            height=50,
+            on_click=lambda e: self.historico_mensal()
+        )
+
         self.lista_produtos = ListView(
             spacing=10,
             padding=10,
@@ -476,7 +503,10 @@ class ListaProdutos():
             Column(
                 controls=[
                     Row(controls=[botao_voltar, Text("Lista de Produtos", color="white", weight="bold", size=25), botao_limpar_dados]), 
-                    lista_produtos_container
+                    lista_produtos_container,
+                    Row(controls=[
+                        botao_ver_historico_mensal, botao_ver_historico_diario, botao_ver_barbeiros
+                    ])
                 ],
             ),
         )
@@ -565,6 +595,18 @@ class ListaProdutos():
         self.page.dialog.open = False
         self.atualizar_lista_produtos()
         self.page.update()
+
+    def ver_barbeiros(self):
+        self.page.clean()
+        ListaDadosBarbeiros(self.page)
+
+    def historico_diario(self):
+        self.page.clean()
+        ListaDadosProdutosDiarios(self.page)
+
+    def historico_mensal(self):
+        self.page.clean()
+        ListaDadosProdutosMensais(self.page)
 
     def voltar(self):
         self.page.clean()

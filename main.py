@@ -154,9 +154,9 @@ class AppBarbearia:
         TelaHistoricoVendas(self.page)
 
     def ver_historico2(self,e):
-        from historico_vendas import TelaHistoricoVendas
+        from historico_vendas2 import ListaDadosProdutosDiarios
         self.page.clean()
-        TelaHistoricoVendas(self.page)
+        ListaDadosProdutosDiarios(self.page)
         
 
 

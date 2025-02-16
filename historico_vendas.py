@@ -205,16 +205,6 @@ class ListaDadosBarbeiros():
             on_click=lambda e: self.historico_mensal()
         )
 
-        botao_ver_produtos_diarios = ElevatedButton(
-            text=" Ver Produtos Diários" , 
-            bgcolor= "white",
-            color = "black",
-            width= 300,
-            height= 50,
-
-            on_click= lambda e: self.ver_produtos_diarios()
-        )
-
         botao_ver_lista_geral = ElevatedButton(
             text = "Ver Lista de Registro Geral",
             bgcolor="white",
@@ -236,7 +226,7 @@ class ListaDadosBarbeiros():
                     lista_dados_barbeiro_container ,
                     Row(
                         controls=[
-                            botao_ver_historico_diario, botao_ver_historico_mensal, botao_ver_produtos_diarios, botao_ver_lista_geral
+                            botao_ver_historico_diario, botao_ver_historico_mensal, botao_ver_lista_geral
                         ]
                     )
                 ],
