@@ -384,12 +384,23 @@ class ListaDadosProdutosMensais():
         cursor = conexao.cursor()
         cursor.execute('''
             SELECT 
-                strftime('%Y-%m', data_produto) AS mes, 
-                SUM(total_produto) AS lucro_mensal, 
-                COUNT(*) AS quantidade_vendas
-            FROM Registro_Produtos
-            GROUP BY mes
-            ORDER BY mes DESC;
+                mes, 
+                total_lucro AS lucro_mensal, 
+                total_cortes AS quantidade_cortes,
+                barbeiro_produto,
+                SUM(total_produto) AS lucro_barbeiro,
+                COUNT(*) AS cortes_barbeiro
+            FROM (
+                SELECT 
+                    strftime('%Y-%m', data_produto) AS mes, 
+                    SUM(total_produto) OVER (PARTITION BY strftime('%Y-%m', data_produto)) AS total_lucro, 
+                    COUNT(*) OVER (PARTITION BY strftime('%Y-%m', data_produto)) AS total_cortes,
+                    barbeiro_produto,
+                    total_produto
+                FROM Registro_Produtos
+            ) AS subquery
+            GROUP BY mes, barbeiro_produto
+            ORDER BY mes DESC, lucro_barbeiro DESC;
         ''')
         historico = cursor.fetchall()
         conexao.close()
@@ -399,14 +410,30 @@ class ListaDadosProdutosMensais():
         historico = self.buscar_historico_produtos_mensal()
         self.lista_produtos_mensal.controls.clear()
 
-        for mes, lucro, vendas in historico:
-            self.lista_produtos_mensal.controls.append(
-                Row([
-                    Text(f"Mês: {mes}", size=20, width=200, color="black", weight="bold"),
-                    Text(f"Lucro: R$ {lucro:.2f}", size=20, width=200, color="green", weight="bold"),
-                    Text(f"Vendas: {vendas}", size=20, width=200, color="blue", weight="bold"),
+        dados_por_mes= {}
+        for mes, lucro_total, vendas_totais, barbeiro, lucro_barbeiro, vendas_barbeiro in historico:
+            if mes not in dados_por_mes:
+                dados_por_mes[mes] = {
+                    "lucro_total": lucro_total,
+                    "vendas_totais":vendas_totais,
+                    "barbeiros": []
+                }
+            dados_por_mes[mes]["barbeiros"].append((barbeiro, vendas_barbeiro, lucro_barbeiro))
+
+        for mes, dados in dados_por_mes.items():
+            linha_principal = Row([
+                Text(f"Mês: {mes}", size=20, width=150, color="black", weight="bold"),
+                Text(f"Lucro Total: R$ {dados['lucro_total']:.2f}", size=20, width=200, color="green", weight="bold"),
+                Text(f"Vendas Totais: {dados['vendas_totais']}", size=20, width=200, color="blue", weight="bold"),
+            ])
+            self.lista_produtos_mensal.controls.append(linha_principal)
+            
+            for barbeiro, vendas, lucro in dados["barbeiros"]:
+                linha_barbeiro = Row([
+                    Text(f"Barbeiro: {barbeiro}", size=18, width=200, color="black"),
+                    Text(f"{vendas} vendas - R$ {lucro:.2f}", size=18, width=200, color="gray"),
                 ])
-            )
+                self.lista_produtos_mensal.controls.append(linha_barbeiro)
         self.page.update()
 
     def historico_diario(self):

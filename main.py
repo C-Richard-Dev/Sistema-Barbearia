@@ -9,7 +9,7 @@ class AppBarbearia:
 
     def setup_interface(self):
         titulo = Text(
-            "Barbearia",
+            "MIRANDA´S BARBEARIA",
             size=30,
             color="white",
             weight="bold",  

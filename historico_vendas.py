@@ -309,7 +309,7 @@ class ListaDadosBarbeiros():
 
 
 class ListaDadosMensais():
-    def __init__(self, page:Page):
+    def __init__(self, page: Page):
         self.page = page
         self.setup_interface()
 
@@ -338,12 +338,13 @@ class ListaDadosMensais():
                 spacing=25,
                 alignment="start",
                 controls=[self.lista_mensal],
-                scroll="adaptive",
+                scroll="auto",  # Permite scroll horizontal e vertical
             ),
             bgcolor="white",
             border_radius=15,
             padding=10,
             height=400,
+            width=True ,  # Aumenta largura para acomodar as colunas extras
         )
 
         botao_ver_historico_diario = ElevatedButton(
@@ -361,13 +362,11 @@ class ListaDadosMensais():
             color="black",
             width=300,
             height=50,
-            
             on_click=lambda e: self.ver_barbeiros()
         )
 
-
         botao_ver_lista_geral = ElevatedButton(
-            text = "Ver Lista de Registro Geral",
+            text="Ver Lista de Registro Geral",
             bgcolor="white",
             color="black",
             width=300,
@@ -375,24 +374,20 @@ class ListaDadosMensais():
             on_click=lambda e: self.historico_geral()
         )
 
-
         self.page.add(
             Column(
                 controls=[
                     Row(
                         controls=[
-                            botao_voltar, Text("Lista de receitas mensais",color="white", weight="bold",size=25),
+                            botao_voltar,
+                            Text("Lista de receitas mensais", color="white", weight="bold", size=25),
                         ],
-                    ), 
-                    #cabecalho,
-                    lista_mensal_container ,
+                    ),
+                    lista_mensal_container,
                     Row(
-                        controls=[
-                            botao_ver_historico_diario, botao_ver_barbeiros, botao_ver_lista_geral
-                        ]
+                        controls=[botao_ver_historico_diario, botao_ver_barbeiros, botao_ver_lista_geral]
                     )
                 ],
-
             ),
         )
 
@@ -401,12 +396,23 @@ class ListaDadosMensais():
         cursor = conexao.cursor()
         cursor.execute('''
             SELECT 
-                strftime('%Y-%m', data) AS mes, 
-                SUM(total) AS lucro_mensal, 
-                COUNT(*) AS quantidade_cortes
-            FROM RegistroServiços
-            GROUP BY mes
-            ORDER BY mes DESC;
+                mes, 
+                total_lucro AS lucro_mensal, 
+                total_cortes AS quantidade_cortes,
+                barbeiro,
+                SUM(total) AS lucro_barbeiro,
+                COUNT(*) AS cortes_barbeiro
+            FROM (
+                SELECT 
+                    strftime('%Y-%m', data) AS mes, 
+                    SUM(total) OVER (PARTITION BY strftime('%Y-%m', data)) AS total_lucro, 
+                    COUNT(*) OVER (PARTITION BY strftime('%Y-%m', data)) AS total_cortes,
+                    barbeiro,
+                    total
+                FROM RegistroServiços
+            ) AS subquery
+            GROUP BY mes, barbeiro
+            ORDER BY mes DESC, lucro_barbeiro DESC;
         ''')
         historico = cursor.fetchall()
         conexao.close()
@@ -416,16 +422,32 @@ class ListaDadosMensais():
         historico = self.buscar_historico_mensal()
         self.lista_mensal.controls.clear()
 
-        for mes, lucro, cortes in historico:
-            self.lista_mensal.controls.append(
-                Row([
-                Text(f"Mês: {mes}", size=20, width= 200 ,color="black", weight="bold"),
-                Text(f"Lucro: R$ {lucro:.2f}", size=20, width= 200 , color="green", weight="bold"),
-                Text(f"Cortes: {(cortes)}", size=20, width= 200 ,color="blue", weight="bold"),
-                ])
-            )
-        self.page.update()
+        dados_por_mes = {}
+        for mes, lucro_total, cortes_totais, barbeiro, lucro_barbeiro, cortes_barbeiro in historico:
+            if mes not in dados_por_mes:
+                dados_por_mes[mes] = {
+                    "lucro_total": lucro_total,
+                    "cortes_totais": cortes_totais,
+                    "barbeiros": []
+                }
+            dados_por_mes[mes]["barbeiros"].append((barbeiro, cortes_barbeiro, lucro_barbeiro))
 
+        for mes, dados in dados_por_mes.items():
+            linha_principal = Row([
+                Text(f"Mês: {mes}", size=20, width=150, color="black", weight="bold"),
+                Text(f"Lucro Total: R$ {dados['lucro_total']:.2f}", size=20, width=200, color="green", weight="bold"),
+                Text(f"Cortes Totais: {dados['cortes_totais']}", size=20, width=200, color="blue", weight="bold"),
+            ])
+            self.lista_mensal.controls.append(linha_principal)
+
+            for barbeiro, cortes_barbeiro, lucro_barbeiro in dados["barbeiros"]:
+                linha_barbeiro = Row([
+                    Text(f"Barbeiro: {barbeiro}", size=18, width=200, color="black"),
+                    Text(f"{cortes_barbeiro} cortes - R$ {lucro_barbeiro:.2f}", size=18, width=200, color="gray"),
+                ])
+                self.lista_mensal.controls.append(linha_barbeiro)
+
+        self.page.update()
 
     def historico_diario(self):
         self.page.clean()
